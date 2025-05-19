@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multi-Step Signup Form</title>
+
+  <style>
+    /*apply styles to all elements*/
+    * {
+      box-sizing: border-box;
+    }
+
+    /*apply styles to the body with gradient backround and center the form*/
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #d4418e, #0652c5);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /*apply styles to the form container*/
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 360px;
+      text-align: center;
+      height: 500px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /*apply styles to the form heading title*/
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+    }
+
+    /*apply styles to the steps indicator container*/
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    /* style each step label*/
+    .steps span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #999;
+      cursor: pointer;
+      padding: 10px 0;
+      margin: 0 5px;
+      border-radius: 5px;
+      background: #f0f0f0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    /*circle number before each step*/
+    .steps span::before {
+      content: attr(data-step);
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      line-height: 30px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+      background: #fff;
+      color: #999;
+      margin-bottom: 5px;
+    }
+
+    /* connector line between steps*/
+    .steps span::after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      height: 2px;
+      width: 100%;
+      background-color: #ccc;
+      z-index: -1;
+      transform: translateX(-50%);
+    }
+
+    /* Remove connector line for the first steps*/
+    .steps span:first-child::after {
+      display: none;
+    }
+
+    /* Hightight current and completed steps*/
+    .steps span.active::before,
+    .steps span.done::before {
+      background: #d4418e;
+      color: #fff;
+      border-color: #d4418e;
+    }
+
+    /* Replace step number with checkmark if step is done*/
+    .steps span.done::before {
+      content: "\2713";
+    }
+
+    /* Hide all forms by default */
+    form {
+      display: none;
+      flex-direction: column;
+    }
+
+    /* Show only the active form */
+    form.active {
+      display: flex;
+    }
+
+    /* Style input fields */
+    input {
+      padding: 0.6rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    /* Navigation button container */
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+
+    /* Style Next,Previous, and Submit buttons */
+    .buttons button,
+    .submit {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      background: #d4418e;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Signup Form</h2>
+
+    <!-- Step indicators -->
+    <div class="steps">
+      <span data-step="1" class="active">Name</span>
+      <span data-step="2">Contact</span>
+      <span data-step="3">Birth</span>
+      <span data-step="4">Submit</span>
+    </div>
+    <form id="form1" class="active">
+      <input type="text" placeholder="Full Name" name="name" required />
+    </form>
+    <form id="form2">
+      <input type="email" placeholder="Email Address" name="email" required />
+      <input type="tel" placeholder="Phone Number" name="phone" required />
+    </form>
+    <form id="form3">
+      <input type="date" name="birthdate" required />
+    </form>
+    <form id="form4" method="post" action="">
+
+      <p>All info ready to submit!</p>
+      <button class="submit" type="submit">Submit</button>
+    </form>
+    <div class="buttons">
+      <button id="prev">Previous</button>
+      <button id="next">Next</button>
+    </div>
+  </div>
+
+  <script>
+    // Select all form steps and buttons
+    const forms = document.querySelectorAll("form");
+    const steps = document.querySelectorAll(".steps span");
+    const nextBtn = document.getElementById("next");
+    const prevBtn = document.getElementById("prev");
+    let current = 0;
+
+    // Function to update active form and step status
+    function updateForm(index) {
+      // Show current form and hide others
+      forms.forEach((form, i) => form.classList.toggle("active", i === index));
+      // Update step progress bar
+      steps.forEach((step, i) => {
+        step.classList.remove("active", "done");
+        if (i < index) step.classList.add("done"); //mark previous step as done
+        else if (i === index) step.classList.add("active"); //mark current step
+      });
+    }
+
+    // Handle "Next" button click
+    nextBtn.onclick = () => {
+      const currentForm = forms[current];
+      const inputs = currentForm.querySelectorAll("input");
+
+      let allFilled = true;
+      inputs.forEach((input) => {
+        // Checks if all inputs are valid using checkValidity()
+        if (!input.checkValidity()) {
+          input.reportValidity(); // shows a validation message using reportValidity() and stops
+          allFilled = false;
+        }
+      });
+
+      if (allFilled && current < forms.length - 1) {
+        current++;
+        updateForm(current);
+      }
+    };
+
+
+    // Handle "Previous" button click
+    prevBtn.onclick = () => {
+      if (current > 0) current--; // Move to previous form
+      updateForm(current);
+    };
+
+    // Intialize the form on page load
+    updateForm(current);
+  </script>
+</body>
+
+</html>
